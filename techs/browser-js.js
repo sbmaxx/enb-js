@@ -4,7 +4,8 @@ var vow = require('vow'),
     buildFlow = enb.buildFlow || require('enb/lib/build-flow'),
     utils = require('enb-source-map/lib/utils'),
     File = require('enb-source-map/lib/file'),
-    minify = require('uglify-js').minify;
+    minify = require('uglify-js').minify,
+    path = require('path');
 
 /**
  * @class BrowserJsTech
@@ -78,6 +79,7 @@ module.exports = buildFlow.create()
         return vow.all(promises)
             .spread(function (sources, ymSource) {
                 var node = this.node,
+                    projectDirName = path.basename(node.getRootDir()),
                     file = new File(node.resolvePath(this._target), { sourceMap: this._sourcemap }),
                     needWrapIIFE = this._iife,
                     needToAddComments = !this._compress,
@@ -89,9 +91,10 @@ module.exports = buildFlow.create()
                 }
 
                 sources.forEach(function (source) {
+                    var pathForSourceMaps = path.join('/static/', projectDirName, path.relative(process.cwd(), source.path));
                     needToAddComments && file.writeLine('/* begin: ' + source.relPath + ' */');
                     needWrapIIFE && file.writeLine('(function(){');
-                    file.writeFileContent(source.relPath, source.contents);
+                    file.writeFileContent(pathForSourceMaps, source.contents);
                     needWrapIIFE && file.writeLine('}());');
                     needToAddComments && file.writeLine('/* end: ' + source.relPath + ' */');
                 });
