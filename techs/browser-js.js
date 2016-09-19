@@ -79,7 +79,6 @@ module.exports = buildFlow.create()
         return vow.all(promises)
             .spread(function (sources, ymSource) {
                 var node = this.node,
-                    projectDirName = path.basename(node.getRootDir()),
                     file = new File(node.resolvePath(this._target), { sourceMap: this._sourcemap }),
                     needWrapIIFE = this._iife,
                     needToAddComments = !this._compress,
@@ -91,7 +90,7 @@ module.exports = buildFlow.create()
                 }
 
                 sources.forEach(function (source) {
-                    var pathForSourceMaps = path.join('/static/', projectDirName, path.relative(process.cwd(), source.path));
+                    var pathForSourceMaps = path.join('/static/fiji/', path.relative(process.cwd(), source.path));
                     needToAddComments && file.writeLine('/* begin: ' + source.relPath + ' */');
                     needWrapIIFE && file.writeLine('(function(){');
                     file.writeFileContent(pathForSourceMaps, source.contents);
